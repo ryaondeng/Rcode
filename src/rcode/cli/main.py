@@ -5,6 +5,7 @@ import sys
 
 from rcode.cli.commands.ping import cmd_ping
 from rcode.cli.commands.core import cmd_core
+from rcode.cli.commands.run import cmd_run
 from rcode.core.config import get_config
 from rcode.core.logging_setup import setup_logging
 
@@ -15,6 +16,9 @@ def main() -> None:
     subparsers = parser.add_subparsers(dest="command")
 
     subparsers.add_parser("ping", help="Ping the core daemon")
+
+    run_parser = subparsers.add_parser("run", help="Run an agent task")
+    run_parser.add_argument("--goal", required=True, help="Goal for the agent to accomplish")
 
     core_parser = subparsers.add_parser("core", help="Manage the core daemon")
     core_sub = core_parser.add_subparsers(dest="core_command")
@@ -34,6 +38,8 @@ def main() -> None:
 
     if args.command == "ping":
         cmd_ping(config)
+    elif args.command == "run":
+        cmd_run(args.goal, config)
     elif args.command == "core":
         if args.core_command == "start":
             cmd_core(config)

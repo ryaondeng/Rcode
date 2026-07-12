@@ -30,8 +30,9 @@ rcode-core (daemon)  ←→  JSON-RPC 2.0 NDJSON  ←→  rcode (CLI/TUI/Web)
 ## 开发命令
 
 ```bash
-uv run rcode-core          # 启动 Core
-uv run rcode ping          # 测试连接
+uv run rcode-core              # 启动 Core
+uv run rcode ping              # 测试连接
+uv run rcode run --goal "xxx"  # 执行 Agent 任务
 uv run python -m pytest tests/ -v  # 运行测试
 ```
 
