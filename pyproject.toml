@@ -56,3 +56,14 @@ strict = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["rcode"]
+omit = [
+    "*/__init__.py",
+    "*/__main__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
