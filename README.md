@@ -58,7 +58,7 @@ uv run mypy src/
 ## 版本
 
 - 当前版本：v0.1.0（开发中）
-- 设计文档：[/home/deng/workspace/note/Rcode](/home/deng/workspace/note/Rcode)
+- 设计文档：[docs/](docs/)
 
 ## 许可证
 
