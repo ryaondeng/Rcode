@@ -48,6 +48,9 @@ class CoreApp:
         logger.info("shutting down")
         await server.stop()
 
+    def run_sync(self) -> None:
+        asyncio.run(self.run())
+
 
 def main() -> None:
     asyncio.run(CoreApp().run())
