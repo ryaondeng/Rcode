@@ -20,6 +20,7 @@ dependencies = [
     "anthropic>=0.40.0",
     "pydantic>=2.0.0",
     "python-dotenv>=1.0.0",
+    "click>=8.0.0",
 ]
 
 [project.optional-dependencies]
@@ -32,7 +33,7 @@ dev = [
 ]
 
 [project.scripts]
-rcode = "rcode.cli.main:main"
+rcode = "rcode.cli.main:cli"
 rcode-core = "rcode.core.app:main"
 
 [build-system]
