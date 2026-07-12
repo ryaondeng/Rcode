@@ -19,7 +19,7 @@ _CONFIG_FILE = Path("~/.rcode/config.toml").expanduser()
 
 
 def load_config() -> RcodeConfig:
-    load_dotenv(override=True)
+    load_dotenv(override=False)
 
     config = RcodeConfig()
 
@@ -36,7 +36,7 @@ def load_config() -> RcodeConfig:
         config.log_level = env_log_level
 
     env_log_file = os.getenv("RCODE_LOG_FILE")
-    if env_log_file is not None:
+    if env_log_file is not None and env_log_file.strip():
         config.log_file = env_log_file
 
     return config

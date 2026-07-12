@@ -9,7 +9,7 @@ from rcode.core.config import RcodeConfig
 def setup_logging(config: RcodeConfig) -> None:
     handlers: list[logging.Handler] = [logging.StreamHandler(sys.stderr)]
 
-    if config.log_file is not None:
+    if config.log_file is not None and config.log_file.strip():
         handlers.append(logging.FileHandler(config.log_file))
 
     logging.basicConfig(
