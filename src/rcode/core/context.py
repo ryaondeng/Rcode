@@ -8,14 +8,28 @@ from rcode.core.tools.base import ToolResult
 
 @dataclass
 class ExecutionContext:
-    goal: str
-    run_id: str
-    max_steps: int = 20
-    messages: list[dict] = field(default_factory=list)
-    step: int = 0
-    status: str = "running"  # "running" | "success" | "failed"
-    result: str | None = None
-    _is_done: bool = False
+    """执行上下文，管理 Agent 运行状态。
+
+    核心职责：
+    1. 维护消息历史（messages）
+    2. 跟踪执行状态（status）
+    3. 管理系统提示词（system_prompt）
+    4. 处理助手消息和工具结果的添加
+
+    状态机：
+    - running：执行中
+    - success：任务完成
+    - failed：执行失败
+    """
+
+    goal: str  # 用户目标
+    run_id: str  # 运行 ID
+    max_steps: int = 20  # 最大步数限制
+    messages: list[dict] = field(default_factory=list)  # 消息历史
+    step: int = 0  # 当前步数
+    status: str = "running"  # 执行状态
+    result: str | None = None  # 最终结果
+    _is_done: bool = False  # 内部完成标志
 
     def __post_init__(self):
         if not self.messages:

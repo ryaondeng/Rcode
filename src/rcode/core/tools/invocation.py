@@ -9,13 +9,28 @@ from rcode.core.tools.registry import ToolRegistry
 
 logger = logging.getLogger(__name__)
 
-_TOOL_TIMEOUT = 30.0
+_TOOL_TIMEOUT = 30.0  # 工具执行超时时间（秒）
 
 
 async def invoke_tool(
     registry: ToolRegistry,
     tool_call: ToolCall,
 ) -> ToolResult:
+    """执行工具调用。
+
+    流程：
+    1. 从注册表中查找工具
+    2. 如果工具不存在，返回错误
+    3. 执行工具，设置超时保护
+    4. 捕获异常并返回错误结果
+
+    Args:
+        registry: 工具注册表
+        tool_call: 工具调用信息
+
+    Returns:
+        ToolResult: 工具执行结果
+    """
     tool = registry.get(tool_call.name)
     if not tool:
         return ToolResult(

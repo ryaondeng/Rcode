@@ -4,10 +4,18 @@ import subprocess
 
 from rcode.core.tools.base import BaseTool, ToolResult
 
-_MAX_OUTPUT = 50000
+_MAX_OUTPUT = 50000  # 输出最大字符数
 
 
 class BashTool(BaseTool):
+    """Bash 命令执行工具。
+
+    功能：
+    - 执行 bash 命令
+    - 捕获 stdout 和 stderr
+    - 超时保护（30s）
+    - 输出截断（50KB）
+    """
     name = "bash"
     description = "Execute a bash command"
     input_schema = {
@@ -22,6 +30,7 @@ class BashTool(BaseTool):
     }
 
     async def invoke(self, params: dict) -> ToolResult:
+        """执行 bash 命令。"""
         command = params.get("command", "")
         if not command:
             return ToolResult(content="No command provided", is_error=True)

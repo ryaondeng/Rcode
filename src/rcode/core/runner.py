@@ -14,11 +14,21 @@ from rcode.core.tools.registry import ToolRegistry
 
 @dataclass
 class RunOutcome:
-    status: str
-    result: str
+    """Agent 运行结果。"""
+    status: str  # "success" | "failed"
+    result: str  # 结果内容
 
 
 class AgentRunner:
+    """Agent 运行器，组装所有依赖并执行任务。
+
+    职责：
+    1. 初始化 LLM Provider
+    2. 注册内置工具
+    3. 创建 ExecutionContext 和 AgentLoop
+    4. 执行任务并返回结果
+    """
+
     def __init__(self, config: RcodeConfig) -> None:
         self._config = config
         self._provider = AnthropicProvider()
@@ -26,9 +36,18 @@ class AgentRunner:
         self._register_builtin_tools()
 
     def _register_builtin_tools(self) -> None:
+        """注册内置工具（如 BashTool）。"""
         self._registry.register(BashTool())
 
     async def run(self, goal: str) -> RunOutcome:
+        """执行 Agent 任务。
+
+        Args:
+            goal: 用户目标描述
+
+        Returns:
+            RunOutcome: 包含状态和结果
+        """
         run_id = f"run_{int(time.time())}_{uuid.uuid4().hex[:8]}"
         context = ExecutionContext(goal=goal, run_id=run_id)
         loop = AgentLoop(self._provider, self._registry)

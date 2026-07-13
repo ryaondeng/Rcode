@@ -11,6 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 class AgentLoop:
+    """Agent 核心循环，驱动 Think → Act → Observe 过程。
+
+    负责：
+    1. 调用 LLM 获取思考结果
+    2. 执行工具调用
+    3. 将结果回填到上下文
+    4. 重复直到任务完成或达到步数限制
+    """
+
     def __init__(
         self,
         provider: LLMProvider,
@@ -20,6 +29,20 @@ class AgentLoop:
         self._registry = registry
 
     async def run(self, context: ExecutionContext) -> None:
+        """执行 Agent 循环。
+
+        循环流程：
+        1. 检查步数限制
+        2. 调用 LLM（Plan）
+        3. 将回复添加到上下文（Observe）
+        4. 执行工具调用（Act）
+        5. 重复直到任务完成
+
+        终止条件：
+        - stop_reason == "end_turn"：LLM 认为任务完成
+        - step >= max_steps：达到步数限制
+        - LLM 调用异常：标记失败并退出
+        """
         while not context.is_done():
             # Check max steps
             if context.step >= context.max_steps:

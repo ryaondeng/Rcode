@@ -5,13 +5,15 @@ from dataclasses import dataclass, field
 
 @dataclass
 class ToolCall:
-    id: str
-    name: str
-    input: dict
+    """工具调用信息。"""
+    id: str  # 调用 ID
+    name: str  # 工具名称
+    input: dict  # 输入参数
 
 
 @dataclass
 class ChatResponse:
-    text: str | None = None
-    tool_calls: list[ToolCall] = field(default_factory=list)
-    stop_reason: str = "end_turn"  # "tool_use" | "end_turn" | "max_tokens"
+    """LLM 响应。"""
+    text: str | None = None  # 文本回复
+    tool_calls: list[ToolCall] = field(default_factory=list)  # 工具调用列表
+    stop_reason: str = "end_turn"  # 停止原因："tool_use" | "end_turn" | "max_tokens"
