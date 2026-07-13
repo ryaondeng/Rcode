@@ -9,6 +9,11 @@ from rcode.core.context import ExecutionContext
 from rcode.core.llm.provider import AnthropicProvider
 from rcode.core.loop import AgentLoop
 from rcode.core.tools.builtin.bash import BashTool
+from rcode.core.tools.builtin.read_file import ReadFileTool
+from rcode.core.tools.builtin.write_file import WriteFileTool
+from rcode.core.tools.builtin.edit_file import EditFileTool
+from rcode.core.tools.builtin.list_dir import ListDirTool
+from rcode.core.tools.builtin.glob import GlobTool
 from rcode.core.tools.registry import ToolRegistry
 
 
@@ -36,8 +41,13 @@ class AgentRunner:
         self._register_builtin_tools()
 
     def _register_builtin_tools(self) -> None:
-        """注册内置工具（如 BashTool）。"""
+        """注册内置工具。"""
         self._registry.register(BashTool())
+        self._registry.register(ReadFileTool())
+        self._registry.register(WriteFileTool())
+        self._registry.register(EditFileTool())
+        self._registry.register(ListDirTool())
+        self._registry.register(GlobTool())
 
     async def run(self, goal: str) -> RunOutcome:
         """执行 Agent 任务。

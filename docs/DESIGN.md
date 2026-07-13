@@ -3,7 +3,7 @@
 > **版本**：v0.1（开发中）  
 > **作者**：ryaon  
 > **定位**：本地运行的 AI Agent 系统，参考 Claude Code 核心架构实现  
-> **设计参考**：Claude Code 分层架构（KamaClaude 项目）
+> **设计参考**：Claude Code 分层架构
 
 ---
 
