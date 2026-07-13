@@ -1,3 +1,4 @@
+import asyncio
 import sys
 from unittest.mock import patch
 
@@ -25,6 +26,23 @@ def test_cli_no_command(capsys):
 
 
 def test_cli_ping_no_core(capsys):
+    """测试 ping 命令在没有 Core 运行时的行为。
+
+    如果 Core 正在运行，跳过此测试。
+    """
+    # 检查 Core 是否正在运行
+    async def check_core():
+        try:
+            reader, writer = await asyncio.open_connection("127.0.0.1", 7437)
+            writer.close()
+            await writer.wait_closed()
+            return True
+        except (ConnectionRefusedError, OSError):
+            return False
+
+    if asyncio.run(check_core()):
+        pytest.skip("Core is running, skipping test")
+
     with patch("sys.argv", ["rcode", "ping"]):
         with pytest.raises(SystemExit) as exc_info:
             main()

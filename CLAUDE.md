@@ -33,8 +33,30 @@ rcode-core (daemon)  ←→  JSON-RPC 2.0 NDJSON  ←→  rcode (CLI/TUI/Web)
 uv run rcode-core              # 启动 Core
 uv run rcode ping              # 测试连接
 uv run rcode run --goal "xxx"  # 执行 Agent 任务
-uv run python -m pytest tests/ -v  # 运行测试
 ```
+
+## 测试策略
+
+### 测试流程（节省时间）
+
+1. **增量测试**：先运行修改模块的测试
+2. **全部测试**：增量通过后再跑全部测试
+3. **修复循环**：失败 → 修复 → 增量测试 → 全部测试
+
+```bash
+# 增量测试（只运行修改的模块）
+uv run python -m pytest tests/unit/test_tools/ -v
+
+# 全部测试（增量通过后）
+uv run python -m pytest tests/ -v
+```
+
+### 测试规范
+
+- 修改代码后，先运行**相关模块**的单元测试
+- 增量测试通过后，再运行全部测试
+- 如果测试失败，修复后重新运行增量测试
+- 不要每次都跑全部测试，浪费时间
 
 ## 提交规范
 
