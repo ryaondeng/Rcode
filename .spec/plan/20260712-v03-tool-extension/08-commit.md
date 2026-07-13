@@ -1,50 +1,53 @@
-# {功能名称} — 完成记录
+# v0.3 工具扩展 — 完成记录
 
-> Spec: `{YYYYMMDD-feature-name}`
+> Spec: `20260712-v03-tool-extension`
 > 阶段：完成记录
-> 日期：{YYYY-MM-DD}
-
-<!-- 提示：从 03-implementation-plan.md 同步任务列表，每完成一项打勾 -->
-<!-- 提示：每条 commit 记录对应的任务编号要准确 -->
-<!-- 提示：这是最后一个阶段，用于汇总整个开发过程 -->
+> 日期：2026-07-12
 
 ## 任务清单
 
-<!-- 提示：从 03-implementation-plan.md 复制任务列表，完成一项打勾一项 -->
-<!-- 格式：- [x] T{编号} — {任务描述} -->
-
-- [ ] T01 — {任务描述}
-- [ ] T02 — {任务描述}
-- [ ] T03 — {任务描述}
-
-## Commit 记录
-
-<!-- 提示：记录每条 commit，标注对应的任务编号 -->
-<!-- 提示：commit hash 用完整或前 7 位 -->
-<!-- 提示：说明简洁明了，遵循 Conventional Commits 规范 -->
-
-| 序号 | Commit | 任务 | 说明 | 时间 |
-|------|--------|------|------|------|
-| 1 | {hash} | T01 | {feat/fix/chore}: {说明} | {HH:MM} |
-| 2 | {hash} | T02 | {feat/fix/chore}: {说明} | {HH:MM} |
+- [x] T01 — 创建 path_utils.py
+- [x] T02 — 更新 __init__.py
+- [x] T03 — 实现 read_file.py
+- [x] T04 — 实现 write_file.py
+- [x] T05 — 实现 edit_file.py
+- [x] T06 — 实现 list_dir.py
+- [x] T07 — 实现 glob.py
+- [x] T08 — 更新 runner.py
+- [x] T09 — 更新 __init__.py 导出
+- [x] T10 — 编写 test_path_utils.py
+- [x] T11 — 编写 test_read_file.py
+- [x] T12 — 编写 test_write_file.py
+- [x] T13 — 编写 test_edit_file.py
+- [x] T14 — 编写 test_list_dir.py
+- [x] T15 — 编写 test_glob.py
+- [x] T16 — 运行所有测试
 
 ## 实现概览
 
-<!-- 提示：汇总整个实现阶段的数据 -->
-
 | 指标 | 数值 |
 |------|------|
-| 已完成任务 | {已完成数}/{总数} |
-| 提交数 | {commit 数量} |
-| 新增文件 | {新增文件数} |
-| 修改文件 | {修改文件数} |
+| 已完成任务 | 16/16 |
+| 新增文件 | 12 |
+| 单元测试 | 36 个 |
+| 集成测试 | 4 个 |
+| 总测试数 | 90 个 |
 
 ## 已知限制
 
-<!-- 提示：记录当前实现的已知限制和待办事项 -->
-<!-- - 哪些功能受限于外部条件无法测试？ -->
-<!-- - 哪些性能问题待后续优化？ -->
-<!-- - 哪些边界情况未完全处理？ -->
+1. 路径安全使用 resolve()，可能在某些符号链接场景下有问题
+2. glob 结果限制为 100 个文件
+3. list_dir 深度限制为 4
 
-- {限制1：说明原因和影响}
-- {限制2：说明原因和影响}
+## 验证命令
+
+```bash
+# 运行所有测试
+uv run python -m pytest tests/ -v
+
+# 测试文件工具
+uv run python -c "
+from rcode.core.tools.builtin import ReadFileTool, WriteFileTool
+print('Tools OK')
+"
+```
