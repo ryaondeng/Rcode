@@ -35,6 +35,17 @@ uv run rcode ping              # 测试连接
 uv run rcode run --goal "xxx"  # 执行 Agent 任务
 ```
 
+## 内置工具
+
+| 工具 | 功能 | 安全机制 |
+|------|------|----------|
+| `bash` | 执行命令 | 超时保护 |
+| `read_file` | 读取文件 | safe_path + 512KB 限制 |
+| `write_file` | 写入文件 | safe_path + 1MB 限制 |
+| `edit_file` | 文本替换 | safe_path |
+| `list_dir` | 目录列表 | safe_path + 深度限制 |
+| `glob` | 文件匹配 | safe_path + 结果校验 |
+
 ## 测试策略
 
 ### 测试流程（节省时间）

@@ -21,3 +21,7 @@ def setup_logging(config: RcodeConfig) -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
         handlers=handlers,
     )
+
+    # 禁用 httpcore 详细日志（保留 httpx 的 LLM 调用指示）
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("httpcore.http11").setLevel(logging.WARNING)

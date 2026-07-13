@@ -1,86 +1,96 @@
-# {功能名称} — 单元测试报告
+# v0.3 工具扩展 — 单元测试报告
 
-> Spec: `{YYYYMMDD-feature-name}`
+> Spec: `20260712-v03-tool-extension`
 > 阶段：单元测试
-> 日期：{YYYY-MM-DD}
+> 日期：2026-07-12
 
 ## 1. 测试概览
 
 | 指标 | 数值 |
 |------|------|
-| 总用例数 | — |
-| 通过 | — |
-| 失败 | — |
-| 跳过 | — |
-| 增量覆盖率（新增代码） | —% |
-| 关键路径覆盖率 | —% |
-
-<!-- 提示：增量覆盖率必须 ≥ 80%，关键路径覆盖率 ≥ 90% -->
-<!-- 提示：所有测试必须全部通过，失败的根据报错信息修复后重新运行 -->
+| 总用例数 | 60 |
+| 通过 | 60 |
+| 失败 | 0 |
+| 跳过 | 0 |
+| 整体覆盖率 | 84% |
 
 ## 2. 测试用例清单
 
-<!-- 提示：测试命名规范：<函数名>_<场景>_<期望结果> -->
-<!-- 提示：测试结构采用 AAA 模式：Arrange → Act → Assert -->
-
-### 2.1 核心业务逻辑
-
-<!-- 提示：覆盖主要功能的正常流程 -->
+### 2.1 路径安全（5 个）
 
 | 用例名 | 测试场景 | 期望结果 | 状态 |
 |--------|----------|----------|------|
-| {函数名}_{场景}_{期望} | {简述测试场景} | {预期行为} | [ ] |
+| test_safe_path_within_workdir | 正常路径 | 返回绝对路径 | [x] |
+| test_safe_path_with_subdirectory | 子目录路径 | 返回绝对路径 | [x] |
+| test_safe_path_escape_raises | 路径逃逸 | 抛出 ValueError | [x] |
+| test_safe_path_absolute_escape_raises | 绝对路径逃逸 | 抛出 ValueError | [x] |
+| test_get_workdir_default | 默认工作目录 | 返回绝对路径 | [x] |
 
-### 2.2 边界条件
-
-<!-- 提示：覆盖边界值和极端情况 -->
-<!-- - 空值/null/undefined -->
-<!-- - 零值/负数/最大值 -->
-<!-- - 空数组/空字符串 -->
-<!-- - 数组只有一个元素 -->
+### 2.2 文件读取（4 个）
 
 | 用例名 | 测试场景 | 期望结果 | 状态 |
 |--------|----------|----------|------|
-| {函数名}_emptyInput_throws | {空输入场景} | {预期抛出异常} | [ ] |
-| {函数名}_maxValue_handles | {最大值场景} | {预期正常处理} | [ ] |
+| test_read_file_success | 读取文件 | 返回内容 | [x] |
+| test_read_file_with_limit | 限制行数 | 返回指定行数 | [x] |
+| test_read_file_not_found | 文件不存在 | 返回错误 | [x] |
+| test_read_file_directory | 读取目录 | 返回错误 | [x] |
 
-### 2.3 错误处理
-
-<!-- 提示：覆盖异常和错误路径 -->
-<!-- - 网络请求失败 -->
-<!-- - 数据库操作失败 -->
-<!-- - 参数校验失败 -->
-<!-- - 权限不足 -->
+### 2.3 文件写入（3 个）
 
 | 用例名 | 测试场景 | 期望结果 | 状态 |
 |--------|----------|----------|------|
-| {函数名}_networkError_retries | {网络异常场景} | {预期重试或抛错} | [ ] |
+| test_write_file_success | 写入文件 | 文件创建成功 | [x] |
+| test_write_file_creates_parent_dir | 创建父目录 | 目录自动创建 | [x] |
+| test_write_file_overwrites | 覆盖文件 | 文件内容更新 | [x] |
+
+### 2.4 文件编辑（4 个）
+
+| 用例名 | 测试场景 | 期望结果 | 状态 |
+|--------|----------|----------|------|
+| test_edit_file_success | 替换文本 | 文本替换成功 | [x] |
+| test_edit_file_only_first_occurrence | 只替换第一次 | 只替换首次出现 | [x] |
+| test_edit_file_not_found | 文件不存在 | 返回错误 | [x] |
+| test_edit_file_text_not_found | 文本不存在 | 返回错误 | [x] |
+
+### 2.5 目录列表（4 个）
+
+| 用例名 | 测试场景 | 期望结果 | 状态 |
+|--------|----------|----------|------|
+| test_list_dir_success | 列出目录 | 返回文件列表 | [x] |
+| test_list_dir_with_depth | 限制深度 | 不显示子目录内容 | [x] |
+| test_list_dir_not_found | 目录不存在 | 返回错误 | [x] |
+| test_list_dir_empty | 空目录 | 返回 empty | [x] |
+
+### 2.6 文件匹配（4 个）
+
+| 用例名 | 测试场景 | 期望结果 | 状态 |
+|--------|----------|----------|------|
+| test_glob_py_files | 匹配 .py 文件 | 返回 py 文件 | [x] |
+| test_glob_recursive | 递归匹配 | 返回嵌套文件 | [x] |
+| test_glob_no_match | 无匹配 | 返回 no files found | [x] |
+| test_glob_with_path | 指定路径 | 在指定路径匹配 | [x] |
 
 ## 3. 覆盖率详情
 
-<!-- 提示：列出每个模块的覆盖率，确保达标 -->
-
-| 模块 | 文件 | 增量覆盖率 | 关键路径覆盖率 |
-|------|------|------------|----------------|
-| {模块名} | {文件路径} | —% | —% |
+| 模块 | 文件 | 覆盖率 |
+|------|------|--------|
+| path_utils | core/tools/builtin/path_utils.py | 100% |
+| read_file | core/tools/builtin/read_file.py | 92% |
+| write_file | core/tools/builtin/write_file.py | 84% |
+| edit_file | core/tools/builtin/edit_file.py | 91% |
+| list_dir | core/tools/builtin/list_dir.py | 86% |
+| glob | core/tools/builtin/glob.py | 85% |
 
 ## 4. 失败用例
 
-<!-- 提示：如有失败用例，分析报错信息并修复 -->
-<!-- - 读取错误堆栈，定位问题行 -->
-<!-- - 判断是测试问题还是代码问题 -->
-<!-- - 修复后重新运行验证 -->
-
-| 用例名 | 失败原因 | 修复方式 | 修复状态 |
-|--------|----------|----------|----------|
-| — | — | — | [ ] |
+无
 
 ## 5. 测试执行命令
 
 ```bash
 # 运行所有单元测试
-{测试命令，如 npm test / pytest / go test ./...}
+uv run python -m pytest tests/unit/ -v
 
-# 运行并生成覆盖率报告
-{覆盖率命令，如 npm test -- --coverage}
+# 运行工具测试
+uv run python -m pytest tests/unit/test_tools/ -v
 ```

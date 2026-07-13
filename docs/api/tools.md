@@ -105,6 +105,70 @@ class WriteFileTool(BaseTool):
     }
 ```
 
+### EditFileTool
+
+通过替换文本编辑文件。
+
+```python
+class EditFileTool(BaseTool):
+    name = "edit_file"
+    description = "Edit file by replacing text"
+    input_schema = {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "文件路径"},
+            "old_text": {"type": "string", "description": "要替换的文本"},
+            "new_text": {"type": "string", "description": "替换后的文本"}
+        },
+        "required": ["path", "old_text", "new_text"]
+    }
+```
+
+### ListDirTool
+
+列出目录内容。
+
+```python
+class ListDirTool(BaseTool):
+    name = "list_dir"
+    description = "List directory contents"
+    input_schema = {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "description": "目录路径", "default": "."},
+            "max_depth": {"type": "integer", "description": "最大深度", "default": 2}
+        }
+    }
+```
+
+### GlobTool
+
+查找匹配模式的文件。
+
+```python
+class GlobTool(BaseTool):
+    name = "glob"
+    description = "Find files matching a pattern"
+    input_schema = {
+        "type": "object",
+        "properties": {
+            "pattern": {"type": "string", "description": "Glob 模式 (如 **/*.py)"},
+            "path": {"type": "string", "description": "基础目录", "default": "."}
+        },
+        "required": ["pattern"]
+    }
+```
+
+## 路径安全
+
+```python
+def safe_path(path: str, workdir: Path | None = None) -> Path:
+    """验证路径在工作目录内，防止路径逃逸。"""
+    ...
+```
+
+所有文件操作工具都使用 `safe_path()` 校验路径安全。
+
 ## 工具调用
 
 ```python

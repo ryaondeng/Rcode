@@ -70,16 +70,18 @@ class AgentLoop:
             # Act: execute tool calls
             if response.stop_reason == "tool_use":
                 for tool_call in response.tool_calls:
+                    print(f"  🔧 Calling tool: {tool_call.name}")
                     result = await invoke_tool(self._registry, tool_call)
                     context.add_tool_result(tool_call.id, result)
-                    logger.debug(
-                        "Tool %s: %s",
-                        tool_call.name,
-                        "error" if result.is_error else "success",
-                    )
+                    if result.is_error:
+                        print(f"  ❌ Tool error: {result.content[:100]}")
+                    else:
+                        print(f"  ✅ Tool success")
             elif response.stop_reason == "end_turn":
                 context.mark_done()
                 context.result = response.text
+                if response.text:
+                    print(f"\n{response.text}")
             elif context.step >= context.max_steps:
                 context.mark_failed("exceeded_max_steps")
                 break
