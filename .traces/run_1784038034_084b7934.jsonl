@@ -1,4 +1,0 @@
-{"ts":"2026-07-14T14:07:14.106178+00:00","direction":"CORE→LLM","layer":"llm","kind":"api_call","run_id":null,"step":null,"client_id":null,"data":{"messages_count":1}}
-{"ts":"2026-07-14T14:07:14.106212+00:00","direction":"LLM→CORE","layer":"llm","kind":"api_response","run_id":null,"step":null,"client_id":null,"data":{"stop_reason":"tool_use","has_text":false,"tool_calls_count":1,"latency_ms":0}}
-{"ts":"2026-07-14T14:07:14.106978+00:00","direction":"CORE→LLM","layer":"llm","kind":"api_call","run_id":null,"step":null,"client_id":null,"data":{"messages_count":3}}
-{"ts":"2026-07-14T14:07:14.106992+00:00","direction":"LLM→CORE","layer":"llm","kind":"api_response","run_id":null,"step":null,"client_id":null,"data":{"stop_reason":"end_turn","has_text":true,"tool_calls_count":0,"latency_ms":0}}

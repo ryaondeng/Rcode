@@ -49,3 +49,5 @@ Thumbs.db
 /events/
 /sessions/
 /.rcode/
+/.traces/
+/.traces
