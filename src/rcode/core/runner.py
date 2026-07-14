@@ -8,6 +8,7 @@ from pathlib import Path
 from rcode.core.config import RcodeConfig
 from rcode.core.context import ExecutionContext
 from rcode.core.events.bus import EventBus
+from rcode.core.events.writer import TraceEventSubscriber
 from rcode.core.llm.provider import AnthropicProvider
 from rcode.core.loop import AgentLoop
 from rcode.core.tools.builtin.bash import BashTool
@@ -109,6 +110,9 @@ class AgentRunner:
 
         # 订阅事件打印
         self._bus.subscribe(_EventPrinter())
+
+        # 订阅事件写入 Trace
+        self._bus.subscribe(TraceEventSubscriber(self._trace))
 
         loop = AgentLoop(traced_provider, self._registry, self._bus)
 
