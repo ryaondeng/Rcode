@@ -9,8 +9,7 @@ from rcode.core.runner import AgentRunner
 
 def cmd_run(goal: str, config: RcodeConfig) -> None:
     try:
-        result = asyncio.run(_run(goal, config))
-        print(result)
+        asyncio.run(_run(goal, config))
     except KeyboardInterrupt:
         print("\nInterrupted", file=sys.stderr)
         sys.exit(1)

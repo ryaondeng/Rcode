@@ -21,6 +21,52 @@ from rcode.core.trace.provider import TracingProvider
 from rcode.core.trace.writer import TraceWriter
 
 
+class _EventPrinter:
+    """将关键事件打印到终端。"""
+
+    def __init__(self):
+        self._run_start = 0
+        self._step = 0
+
+    def __call__(self, event):
+        import time
+        from datetime import datetime
+        from rcode.core.events.types import (
+            RunStartedEvent, RunFinishedEvent,
+            StepStartedEvent,
+            ToolCallStartedEvent, ToolCallFinishedEvent,
+            LlmCallStartedEvent,
+        )
+
+        now = datetime.now().strftime("%H:%M:%S")
+
+        if isinstance(event, RunStartedEvent):
+            self._run_start = time.monotonic()
+            print(f"Task: {event.goal}\n")
+
+        elif isinstance(event, StepStartedEvent):
+            self._step = event.step
+
+        elif isinstance(event, LlmCallStartedEvent):
+            print(f"{now} | Step {event.step} | [LLM] chat | ...")
+
+        elif isinstance(event, ToolCallStartedEvent):
+            args_str = str(event.params)[:50] if event.params else ""
+            print(f"{now} | [Tool] {event.tool_name} | ... | Args: {args_str}")
+
+        elif isinstance(event, ToolCallFinishedEvent):
+            if event.tool_result:
+                # 截断显示
+                display = event.tool_result[:150]
+                if len(event.tool_result) > 150:
+                    display += "..."
+                print(f"{now} | Output: {display}")
+
+        elif isinstance(event, RunFinishedEvent):
+            elapsed = time.monotonic() - self._run_start
+            print(f"\nDone ({elapsed:.2f}s)")
+
+
 @dataclass
 class RunOutcome:
     """Agent 运行结果。"""
@@ -60,6 +106,9 @@ class AgentRunner:
 
         # 用 TracingProvider 包裹真实 provider
         traced_provider = TracingProvider(self._provider, self._trace)
+
+        # 订阅事件打印
+        self._bus.subscribe(_EventPrinter())
 
         loop = AgentLoop(traced_provider, self._registry, self._bus)
 

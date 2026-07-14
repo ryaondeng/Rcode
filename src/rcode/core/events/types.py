@@ -55,6 +55,7 @@ class ToolCallFinishedEvent(BaseModel):
     run_id: str
     tool_name: str
     is_error: bool
+    tool_result: str = ""
     ts: str
 
 
