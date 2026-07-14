@@ -116,6 +116,21 @@ v0.1 骨架与协议 → v0.2 Agent 闭环 → v0.3 工具扩展 → ... → v0.
 7. 文档更新 → 07-docs-update-plan.md
 8. 完成记录 → 08-commit.md
 
+### ⚠️ 强制规则
+
+**每完成一个阶段，必须更新对应的 spec 文档！**
+
+| 阶段 | 必须更新的文档 |
+|------|----------------|
+| 实现阶段完成后 | 08-commit.md（任务打勾） |
+| 单元测试完成后 | 04-unit-test-plan.md |
+| 集成测试完成后 | 05-integration-test-plan.md |
+| Code Review 完成后 | 06-code-review-report.md |
+| 文档更新完成后 | 07-docs-update-plan.md |
+| 最后 | 00-index.md（更新状态） |
+
+**不要跳过 spec 文档更新！**
+
 ### 重要原则
 
 - **开发以 spec 文档为准**
