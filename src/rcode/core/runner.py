@@ -3,6 +3,7 @@ from __future__ import annotations
 import time
 import uuid
 from dataclasses import dataclass
+from pathlib import Path
 
 from rcode.core.config import RcodeConfig
 from rcode.core.context import ExecutionContext
@@ -16,6 +17,8 @@ from rcode.core.tools.builtin.edit_file import EditFileTool
 from rcode.core.tools.builtin.list_dir import ListDirTool
 from rcode.core.tools.builtin.glob import GlobTool
 from rcode.core.tools.registry import ToolRegistry
+from rcode.core.trace.provider import TracingProvider
+from rcode.core.trace.writer import TraceWriter
 
 
 @dataclass
@@ -26,20 +29,14 @@ class RunOutcome:
 
 
 class AgentRunner:
-    """Agent 运行器，组装所有依赖并执行任务。
-
-    职责：
-    1. 初始化 LLM Provider
-    2. 注册内置工具
-    3. 创建 ExecutionContext 和 AgentLoop
-    4. 执行任务并返回结果
-    """
+    """Agent 运行器，组装所有依赖并执行任务。"""
 
     def __init__(self, config: RcodeConfig) -> None:
         self._config = config
         self._provider = AnthropicProvider()
         self._registry = ToolRegistry()
         self._bus = EventBus()
+        self._trace: TraceWriter | None = None
         self._register_builtin_tools()
 
     def _register_builtin_tools(self) -> None:
@@ -52,17 +49,19 @@ class AgentRunner:
         self._registry.register(GlobTool())
 
     async def run(self, goal: str) -> RunOutcome:
-        """执行 Agent 任务。
-
-        Args:
-            goal: 用户目标描述
-
-        Returns:
-            RunOutcome: 包含状态和结果
-        """
+        """执行 Agent 任务。"""
         run_id = f"run_{int(time.time())}_{uuid.uuid4().hex[:8]}"
         context = ExecutionContext(goal=goal, run_id=run_id)
-        loop = AgentLoop(self._provider, self._registry, self._bus)
+
+        # 初始化 Trace
+        trace_path = Path(".traces") / f"{run_id}.jsonl"
+        self._trace = TraceWriter(trace_path)
+        await self._trace.start()
+
+        # 用 TracingProvider 包裹真实 provider
+        traced_provider = TracingProvider(self._provider, self._trace)
+
+        loop = AgentLoop(traced_provider, self._registry, self._bus)
 
         try:
             await loop.run(context)
@@ -72,3 +71,5 @@ class AgentRunner:
             )
         except Exception as e:
             return RunOutcome(status="failed", result=str(e))
+        finally:
+            await self._trace.stop()
