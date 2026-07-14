@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from rcode.core.context import ExecutionContext
+from rcode.core.events.bus import EventBus
 from rcode.core.llm.types import ChatResponse, ToolCall
 from rcode.core.loop import AgentLoop
 from rcode.core.runner import AgentRunner, RunOutcome
@@ -32,8 +33,9 @@ async def test_agent_loop_simple_task():
         ChatResponse(text="Hello!", stop_reason="end_turn"),
     ])
     registry = ToolRegistry()
+    bus = EventBus()
 
-    loop = AgentLoop(mock_llm, registry)
+    loop = AgentLoop(mock_llm, registry, bus)
     context = ExecutionContext(goal="Say hello", run_id="test_1")
 
     await loop.run(context)
@@ -54,8 +56,9 @@ async def test_agent_loop_with_tool_call():
     ])
     registry = ToolRegistry()
     registry.register(BashTool())
+    bus = EventBus()
 
-    loop = AgentLoop(mock_llm, registry)
+    loop = AgentLoop(mock_llm, registry, bus)
     context = ExecutionContext(goal="Run echo", run_id="test_2")
 
     await loop.run(context)
@@ -68,7 +71,6 @@ async def test_agent_loop_with_tool_call():
 @pytest.mark.asyncio
 async def test_agent_loop_max_steps():
     """Test agent loop stops at max steps."""
-    # Create infinite tool calls
     infinite_responses = [
         ChatResponse(
             tool_calls=[ToolCall(id=str(i), name="bash", input={"command": "echo loop"})],
@@ -79,8 +81,9 @@ async def test_agent_loop_max_steps():
     mock_llm = MockLLMProvider(infinite_responses)
     registry = ToolRegistry()
     registry.register(BashTool())
+    bus = EventBus()
 
-    loop = AgentLoop(mock_llm, registry)
+    loop = AgentLoop(mock_llm, registry, bus)
     context = ExecutionContext(goal="Loop forever", run_id="test_3", max_steps=3)
 
     await loop.run(context)
@@ -123,7 +126,6 @@ async def test_agent_runner_error():
         outcome = await runner.run("Test goal")
 
     assert outcome.status == "failed"
-    # Loop catches exception and sets "llm_error"
     assert outcome.result == "llm_error"
 
 
@@ -140,6 +142,7 @@ async def test_tool_result_in_context():
     context.add_assistant_message(resp)
 
     # Add tool result
+    from rcode.core.tools.base import ToolResult
     result = ToolResult(content="file1.txt\nfile2.txt")
     context.add_tool_result("1", result)
 

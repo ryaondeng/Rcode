@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from rcode.core.config import RcodeConfig
 from rcode.core.context import ExecutionContext
+from rcode.core.events.bus import EventBus
 from rcode.core.llm.provider import AnthropicProvider
 from rcode.core.loop import AgentLoop
 from rcode.core.tools.builtin.bash import BashTool
@@ -38,6 +39,7 @@ class AgentRunner:
         self._config = config
         self._provider = AnthropicProvider()
         self._registry = ToolRegistry()
+        self._bus = EventBus()
         self._register_builtin_tools()
 
     def _register_builtin_tools(self) -> None:
@@ -60,7 +62,7 @@ class AgentRunner:
         """
         run_id = f"run_{int(time.time())}_{uuid.uuid4().hex[:8]}"
         context = ExecutionContext(goal=goal, run_id=run_id)
-        loop = AgentLoop(self._provider, self._registry)
+        loop = AgentLoop(self._provider, self._registry, self._bus)
 
         try:
             await loop.run(context)
