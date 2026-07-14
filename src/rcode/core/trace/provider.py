@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from datetime import UTC, datetime
+from datetime import datetime
 
 from rcode.core.llm.base import LLMProvider
 from rcode.core.llm.types import ChatResponse
@@ -10,7 +10,7 @@ from rcode.core.trace.writer import TraceWriter
 
 
 def _now() -> str:
-    return datetime.now(UTC).isoformat()
+    return datetime.now().isoformat()
 
 
 class TracingProvider(LLMProvider):

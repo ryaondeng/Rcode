@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from datetime import datetime
 
 from rcode.core.context import ExecutionContext
 from rcode.core.events.bus import EventBus
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def _now() -> str:
-    return datetime.now(UTC).isoformat()
+    return datetime.now().isoformat()
 
 
 class AgentLoop:
@@ -104,16 +104,21 @@ class AgentLoop:
                         run_id=context.run_id,
                         tool_name=tool_call.name,
                         is_error=result.is_error,
+                        tool_result=result.content[:500] if result.content else "",
                         ts=_now(),
                     ))
-
-                    print(f"  🔧 {tool_call.name}: {'❌ error' if result.is_error else '✅ ok'}")
 
             elif response.stop_reason == "end_turn":
                 context.mark_done()
                 context.result = response.text
                 if response.text:
-                    print(f"\n{response.text}")
+                    await self._bus.publish(ToolCallFinishedEvent(
+                        run_id=context.run_id,
+                        tool_name="",
+                        is_error=False,
+                        tool_result=response.text[:500],
+                        ts=_now(),
+                    ))
 
             await self._bus.publish(StepFinishedEvent(
                 run_id=context.run_id,
