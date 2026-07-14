@@ -15,79 +15,34 @@ rcode-core (daemon)  ←→  JSON-RPC 2.0 NDJSON  ←→  rcode (CLI/TUI/Web)
 ```
 
 - **双进程**：故障隔离、多客户端、状态持久化
-- **JSON-RPC 2.0 + NDJSON**：成熟标准、便于流式读取、类型安全
-
-## 开发目标
-
-参考 Claude Code 核心架构，实现完整的 Agent Harness：
-- Agent Loop（Think → Act → Observe）
-- 工具系统、权限审批、事件流
-- 会话管理、上下文压缩、记忆系统
-- 子 Agent、技能加载、MCP 集成
-
-**不要偏离**：我们做的是 Harness，不是 Model。不要花时间在模型训练或 prompt engineering 上。
+- **AgentLoop**：Think → Act → Observe 循环，事件驱动，不含 UI 代码
 
 ## 开发命令
 
 ```bash
-uv run rcode-core              # 启动 Core
-uv run rcode ping              # 测试连接
 uv run rcode run --goal "xxx"  # 执行 Agent 任务
+uv run rcode ping              # 测试连接
 ```
 
-## 内置工具
-
-| 工具 | 功能 | 安全机制 |
-|------|------|----------|
-| `bash` | 执行命令 | 超时保护 |
-| `read_file` | 读取文件 | safe_path + 512KB 限制 |
-| `write_file` | 写入文件 | safe_path + 1MB 限制 |
-| `edit_file` | 文本替换 | safe_path |
-| `list_dir` | 目录列表 | safe_path + 深度限制 |
-| `glob` | 文件匹配 | safe_path + 结果校验 |
-
-## 测试策略
-
-### 测试流程（节省时间）
-
-1. **增量测试**：先运行修改模块的测试
-2. **全部测试**：增量通过后再跑全部测试
-3. **修复循环**：失败 → 修复 → 增量测试 → 全部测试
+## 测试
 
 ```bash
-# 增量测试（只运行修改的模块）
-uv run python -m pytest tests/unit/test_tools/ -v
-
-# 全部测试（增量通过后）
-uv run python -m pytest tests/ -v
+uv run python -m pytest tests/unit/ -v  # 单元测试
+uv run python -m pytest tests/ -v       # 全部测试
 ```
 
-### 测试规范
-
-- 修改代码后，先运行**相关模块**的单元测试
-- 增量测试通过后，再运行全部测试
-- 如果测试失败，修复后重新运行增量测试
-- 不要每次都跑全部测试，浪费时间
+原则：先增量测试相关模块，通过后再跑全部测试。
 
 ## 提交规范
 
-- 日常：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`
+- 格式：`feat:`、`fix:`、`docs:`、`test:`、`refactor:`
 - 版本：用户手动打 tag，不在提交信息中写版本号
 
 ## 注释规范
 
-- **复杂类**：类定义上方加一句话说明职责
-- **复杂函数**：函数定义上方加一句话说明功能
-- **公共 API**：添加 Args/Returns 说明参数和返回值
-- **不要**：简单函数、getter/setter、明显逻辑不加注释
-
-原则：一句话能说清楚的，不写两句话；复杂逻辑加注释，简单逻辑不加。
-
-## 版本规划
-
-v0.1 骨架与协议 → v0.2 Agent 闭环 → v0.3 工具扩展 → ... → v0.14 MCP 集成
-
-详见 `docs/versions/` 目录。
+- 复杂类/函数：上方加一句话说明
+- 公共 API：添加 Args/Returns
+- 简单逻辑：不加注释
 
 ## Spec 驱动开发
 
