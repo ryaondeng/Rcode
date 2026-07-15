@@ -77,6 +77,21 @@ class LlmCallFinishedEvent(BaseModel):
     ts: str
 
 
+# Session 生命周期事件
+class SessionAttachedEvent(BaseModel):
+    """Session 连接事件。"""
+    type: Literal["session.attached"] = "session.attached"
+    session_id: str
+    ts: str
+
+
+class SessionDetachedEvent(BaseModel):
+    """Session 断开事件。"""
+    type: Literal["session.detached"] = "session.detached"
+    session_id: str
+    ts: str
+
+
 # 事件联合类型
 Event = Annotated[
     RunStartedEvent
@@ -86,6 +101,8 @@ Event = Annotated[
     | ToolCallStartedEvent
     | ToolCallFinishedEvent
     | LlmCallStartedEvent
-    | LlmCallFinishedEvent,
+    | LlmCallFinishedEvent
+    | SessionAttachedEvent
+    | SessionDetachedEvent,
     Discriminator("type"),
 ]

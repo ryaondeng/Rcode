@@ -21,9 +21,10 @@ class SessionManager:
             self._locks[session_id] = asyncio.Lock()
         return self._locks[session_id]
 
-    async def create(self, mode: SessionMode = "chat", title: str = "") -> Session:
+    async def create(self, session_id: str | None = None, mode: SessionMode = "chat", title: str = "", goal: str = "") -> Session:
         """创建新会话。"""
-        session_id = f"sess-{uuid.uuid4().hex[:12]}"
+        if session_id is None:
+            session_id = f"sess-{uuid.uuid4().hex[:12]}"
         now = datetime.now(UTC).isoformat()
         session = Session(
             id=session_id,
@@ -35,6 +36,48 @@ class SessionManager:
         self._sessions[session_id] = session
         self._store.write_meta(session)
         return session
+
+    async def load(self, session_id: str) -> Session | None:
+        """加载会话。"""
+        # 先从内存缓存找
+        if session_id in self._sessions:
+            return self._sessions[session_id]
+        # 从存储加载
+        session = self._store.read_meta(session_id)
+        if session:
+            self._sessions[session_id] = session
+        return session
+
+    async def load_context(self, session_id: str):
+        """从已有 session 构建 ExecutionContext。"""
+        from rcode.core.context import ExecutionContext
+
+        session = await self.load(session_id)
+        if session is None:
+            return None
+
+        # 加载历史消息
+        messages = self._store.read_messages(session_id)
+
+        # 构建 ExecutionContext
+        context = ExecutionContext(
+            goal=messages[-1]["content"] if messages else "",
+            run_id=f"run_{uuid.uuid4().hex[:8]}",
+        )
+        context.messages = messages
+        return context
+
+    async def save(self, session_id: str, messages: list[dict]) -> None:
+        """保存消息到 session。"""
+        async with self._get_lock(session_id):
+            session = self._sessions.get(session_id)
+            if session:
+                session.updated_at = datetime.now(UTC).isoformat()
+                self._store.write_meta(session)
+
+            # 追加消息
+            for msg in messages:
+                self._store.append_message(session_id, msg)
 
     async def send_message(self, session_id: str, content: str) -> str:
         """发送消息并返回 run_id。"""

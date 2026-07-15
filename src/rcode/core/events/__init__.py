@@ -9,6 +9,8 @@ from rcode.core.events.types import (
     ToolCallFinishedEvent,
     LlmCallStartedEvent,
     LlmCallFinishedEvent,
+    SessionAttachedEvent,
+    SessionDetachedEvent,
     Event,
 )
 
@@ -23,5 +25,7 @@ __all__ = [
     "ToolCallFinishedEvent",
     "LlmCallStartedEvent",
     "LlmCallFinishedEvent",
+    "SessionAttachedEvent",
+    "SessionDetachedEvent",
     "Event",
 ]

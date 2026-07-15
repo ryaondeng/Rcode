@@ -71,6 +71,8 @@ uv run python -m pytest tests/ -v       # 全部测试
 7. 文档更新 → 07-docs-update-plan.md
 8. 完成记录 → 08-commit.md
 
+完成9阶段开发后，添加本版本的changelog文档，在Rcode/docs/changelog下，参考之前的文档格式
+
 ### ⚠️ 强制规则
 
 **每完成一个阶段，必须更新对应的 spec 文档！**
