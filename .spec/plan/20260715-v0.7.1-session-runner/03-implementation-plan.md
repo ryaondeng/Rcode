@@ -42,6 +42,9 @@
 | T09 | 单元测试：SessionManager.load_context() | P0 | 20min | [x] |
 | T10 | 单元测试：AgentRunner.run() 两种模式 | P0 | 20min | [x] |
 | T11 | 集成测试：多轮对话场景 | P0 | 30min | [-] |
+| T12 | 单元测试：SessionManager.load() | P0 | 10min | [x] |
+| T13 | 单元测试：SessionManager.save() | P0 | 10min | [x] |
+| T14 | 单元测试：SessionManager.load_context() 不存在 | P0 | 10min | [x] |
 
 ## 依赖关系
 

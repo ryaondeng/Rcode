@@ -17,6 +17,9 @@
 - [x] T09 — 单元测试：SessionManager.load_context()
 - [x] T10 — 单元测试：AgentRunner.run() 两种模式
 - [x] T11 — 集成测试：多轮对话场景
+- [x] T12 — 单元测试：SessionManager.load()
+- [x] T13 — 单元测试：SessionManager.save()
+- [x] T14 — 单元测试：SessionManager.load_context() 不存在
 
 ## Commit 记录
 
