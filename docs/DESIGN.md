@@ -1,39 +1,16 @@
-# Rcode - 本地 AI Agent 系统设计文档
+# Rcode 设计文档
 
-> **版本**：v0.1（开发中）  
-> **作者**：ryaon  
-> **定位**：本地运行的 AI Agent 系统，参考 Claude Code 核心架构实现  
-> **设计参考**：Claude Code 分层架构
+> **定位**：本地 AI Agent 系统，参考 Claude Code 核心架构实现
 
 ---
 
-## 项目概述
-
-Rcode 是一个本地运行的 AI Agent 系统，实现了一个完整的 **Agent 运行时**（Runtime）。
+## 设计理念
 
 ```
 Agent = Model (LLM) + Harness (运行环境)
 ```
 
-Rcode 实现的就是这个 **Harness**：用户输入 → Agent Loop → 工具调用 → 结果回填 → 事件展示 → 会话续航。
-
----
-
-## 功能特性
-
-| 模块 | 描述 |
-|------|------|
-| Agent Loop | ReAct 循环：Think → Act → Observe |
-| Tool System | 可扩展的工具注册和调用 |
-| Permission System | 工具调用前的安全检查 |
-| Event System | 发布-订阅事件总线 |
-| Session Management | 多轮对话，Session 持久化 |
-| Context Compaction | 上下文水位检测和压缩 |
-| Memory System | 跨会话的持久化记忆 |
-| Task System | 任务拆解、依赖管理 |
-| Skill System | 按需加载技能包 |
-| Subagent System | 子 Agent 派生和协作 |
-| MCP Integration | 外部工具协议接入 |
+Rcode 实现的是 **Harness**：工具、权限、上下文管理、会话续航。
 
 ---
 
@@ -62,63 +39,54 @@ Rcode 实现的就是这个 **Harness**：用户输入 → Agent Loop → 工具
 └─────────────────────────────────────────────────────────────┘
 ```
 
-详见：[architecture/directory-structure.md](docs/architecture/directory-structure.md)
-
 ---
 
 ## 版本规划
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  v0.1  骨架与协议          基础设施                              │
-│  v0.2  Agent 最小闭环      核心能力                              │
-│  v0.3  工具扩展            核心能力                              │
-├─────────────────────────────────────────────────────────────────┤
-│  v0.4  事件流              可观测性                              │
-│  v0.5  Trace 追踪          可观测性                              │
-├─────────────────────────────────────────────────────────────────┤
-│  v0.6  会话管理            状态管理                              │
-│  v0.7  上下文压缩          状态管理                              │
-│  v0.8  记忆系统            状态管理                              │
-├─────────────────────────────────────────────────────────────────┤
-│  v0.9  工具安全            安全治理                              │
-│  v0.10 错误恢复            安全治理                              │
-├─────────────────────────────────────────────────────────────────┤
-│  v0.11 任务系统            扩展能力                              │
-│  v0.12 子 Agent            扩展能力                              │
-│  v0.13 技能系统            扩展能力                              │
-│  v0.14 MCP 集成            扩展能力                              │
-├ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┤
-│  扩展功能（选择性开发）                                          │
-│  v0.15-0.21: Hooks、LLM多模型、Prompt组装、Background Tasks等   │
-└─────────────────────────────────────────────────────────────────┘
-```
+### 已完成（v0.1 ~ v0.7）
 
-| 版本 | 主题 | 层级 |
+| 版本 | 主题 | 状态 |
 |------|------|------|
-| v0.1 | 骨架与协议 | 基础设施 |
-| v0.2 | Agent 最小闭环 | 核心能力 |
-| v0.3 | 工具扩展 | 核心能力 |
-| v0.4 | 事件流 | 可观测性 |
-| v0.5 | Trace 追踪 | 可观测性 |
-| v0.6 | 会话管理 | 状态管理 |
-| v0.7 | 上下文压缩 | 状态管理 |
-| v0.8 | 记忆系统 | 状态管理 |
-| v0.9 | 工具安全 | 安全治理 |
-| v0.10 | 错误恢复 | 安全治理 |
-| v0.11 | 任务系统 | 扩展能力 |
-| v0.12 | 子 Agent | 扩展能力 |
-| v0.13 | 技能系统 | 扩展能力 |
-| v0.14 | MCP 集成 | 扩展能力 |
-| v0.15 | Hooks 系统 | 扩展性 |
-| v0.16 | LLM 多模型 | 扩展性 |
-| v0.17 | Prompt 组装 | 扩展性 |
-| v0.18 | Background Tasks | 扩展性 |
-| v0.19 | Cron Scheduler | 扩展性 |
-| v0.20 | Agent Teams | 扩展性 |
-| v0.21 | Worktree Isolation | 扩展性 |
+| v0.1 | 骨架与协议 | ✅ |
+| v0.2 | Agent 最小闭环 | ✅ |
+| v0.3 | 工具扩展 | ✅ |
+| v0.4 | 事件流 | ✅ |
+| v0.5 | Trace 追踪 | ✅ |
+| v0.6 | 会话管理 | ⚠️ 未集成 |
+| v0.7 | 上下文压缩 | ⚠️ 未集成 |
 
-详见：[versions/](docs/versions/) 目录下各版本文档
+### 重构阶段（v0.7.x）
+
+| 版本 | 主题 |
+|------|------|
+| v0.7.1 | Session ↔ Runner 接线 |
+| v0.7.2 | Compactor ↔ Loop 接线 |
+| v0.7.3 | 事件订阅解耦 |
+| v0.7.4 | CLI ↔ Core IPC 化 |
+| v0.7.5 | 配置系统统一 |
+
+### 新增阶段（v0.8+）
+
+| 版本 | 主题 |
+|------|------|
+| v0.8 | TUI |
+| v0.9 | Hook |
+| v0.10 | 工具安全 |
+| v0.11 | 错误恢复 |
+| v0.12 | Session 三态 |
+| v0.13 | Memory |
+| v0.14 | Prompt 组装 |
+| v0.15 | Task 系统 |
+| v0.16 | Subagent |
+| v0.17 | Skill |
+| v0.18 | MCP |
+| v0.19 | Background Bash |
+| v0.20 | Cron |
+| v0.21 | Agent Teams |
+| v0.22 | Autonomous Agents |
+| v0.23 | Worktree Isolation |
+
+详见：`note/Rcode/Rcode-开发路径规划-v0.8以后.md`
 
 ---
 
@@ -131,40 +99,3 @@ Rcode 实现的就是这个 **Harness**：用户输入 → Agent Loop → 工具
 | LLM SDK | anthropic |
 | 数据模型 | Pydantic v2 |
 | 测试 | pytest |
-| Lint | ruff |
-| 类型检查 | mypy |
-
----
-
-## 文档索引
-
-### 版本文档
-开发每个版本时，读取对应的版本文档：
-- [v0.1-骨架与协议](docs/versions/v0.1-骨架与协议.md)
-- [v0.2-Agent最小闭环](docs/versions/v0.2-Agent最小闭环.md)
-- ... (共 21 个版本)
-
-### 架构文档
-理解系统设计时，读取架构文档：
-- [目录结构](docs/architecture/directory-structure.md)
-- [IPC 协议](docs/architecture/ipc-protocol.md)
-- [事件系统](docs/architecture/event-system.md)
-- [工具系统](docs/architecture/tool-system.md)
-
-### 开发规范
-日常开发时，参考开发规范：
-- [代码风格](docs/development/coding-style.md)
-- [测试策略](docs/development/testing.md)
-- [文档规范](docs/development/documentation.md)
-- [Git 工作流](docs/development/git-workflow.md)
-
-### API 文档
-开发时查阅接口定义：
-- [工具接口](docs/api/tools.md)
-- [LLM 接口](docs/api/llm.md)
-
----
-
-**文档版本**：v0.1  
-**最后更新**：2026年7月  
-**作者**：ryaon
