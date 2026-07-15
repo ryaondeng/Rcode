@@ -8,8 +8,21 @@ import time
 from rcode.cli.commands.ping import cmd_ping
 from rcode.cli.commands.core import cmd_core
 from rcode.cli.commands.run import cmd_run
-from rcode.core.config import get_config
+from rcode.core.config import get_config, load_config, RcodeConfig
 from rcode.core.logging_setup import setup_logging
+
+
+def cmd_config_show(config: RcodeConfig) -> None:
+    """显示当前配置。"""
+    print("Current configuration:\n")
+    for section, fields in config.model_dump().items():
+        if isinstance(fields, dict):
+            print(f"[{section}]")
+            for key, value in fields.items():
+                print(f"  {key} = {value}")
+            print()
+        else:
+            print(f"{section} = {fields}")
 
 
 def cmd_core_start(config):
@@ -53,6 +66,10 @@ def main() -> None:
     core_sub.add_parser("stop", help="Stop the running daemon")
     core_sub.add_parser("status", help="Show daemon status")
 
+    config_parser = subparsers.add_parser("config", help="Manage configuration")
+    config_sub = config_parser.add_subparsers(dest="config_command")
+    config_sub.add_parser("show", help="Show current configuration")
+
     args = parser.parse_args()
 
     if args.version:
@@ -76,6 +93,12 @@ def main() -> None:
             print("TODO: show status")
         else:
             core_parser.print_help()
+            sys.exit(1)
+    elif args.command == "config":
+        if args.config_command == "show":
+            cmd_config_show(config)
+        else:
+            config_parser.print_help()
             sys.exit(1)
     else:
         parser.print_help()
