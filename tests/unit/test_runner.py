@@ -3,7 +3,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from pathlib import Path
 import tempfile
 
-from rcode.core.runner import AgentRunner, RunOutcome, _EventPrinter
+from rcode.core.runner import AgentRunner, RunOutcome
+from rcode.cli.printer import ConsoleSubscriber
 from rcode.core.events.types import (
     RunStartedEvent, RunFinishedEvent, StepStartedEvent,
     ToolCallStartedEvent, ToolCallFinishedEvent, LlmCallStartedEvent,
@@ -26,53 +27,53 @@ def test_run_outcome_failed():
     assert outcome.result == "error"
 
 
-# 功能：测试 _EventPrinter 处理 RunStartedEvent
+# 功能：测试 ConsoleSubscriber 处理 RunStartedEvent
 # 设计：验证 printer 能正确处理启动事件，不抛异常
-def test_event_printer_run_started(capsys):
-    printer = _EventPrinter()
+def test_console_subscriber_run_started(capsys):
+    subscriber = ConsoleSubscriber()
     event = RunStartedEvent(run_id="123", goal="test goal", ts="2024-01-01T00:00:00")
-    printer(event)
+    subscriber(event)
     captured = capsys.readouterr()
     assert "test goal" in captured.out
 
 
-# 功能：测试 _EventPrinter 处理 RunFinishedEvent
+# 功能：测试 ConsoleSubscriber 处理 RunFinishedEvent
 # 设计：验证 printer 能正确处理结束事件，不抛异常
-def test_event_printer_run_finished(capsys):
-    printer = _EventPrinter()
-    printer._run_start = 0
+def test_console_subscriber_run_finished(capsys):
+    subscriber = ConsoleSubscriber()
+    subscriber._run_start = 0
     event = RunFinishedEvent(run_id="123", status="success", ts="2024-01-01T00:00:00")
-    printer(event)
+    subscriber(event)
     captured = capsys.readouterr()
     assert "Done" in captured.out
 
 
-# 功能：测试 _EventPrinter 处理 ToolCallStartedEvent
+# 功能：测试 ConsoleSubscriber 处理 ToolCallStartedEvent
 # 设计：验证 printer 能正确处理工具调用事件
-def test_event_printer_tool_call_started(capsys):
-    printer = _EventPrinter()
+def test_console_subscriber_tool_call_started(capsys):
+    subscriber = ConsoleSubscriber()
     event = ToolCallStartedEvent(run_id="123", tool_name="bash", params={"command": "ls"}, ts="2024-01-01T00:00:00")
-    printer(event)
+    subscriber(event)
     captured = capsys.readouterr()
     assert "bash" in captured.out
 
 
-# 功能：测试 _EventPrinter 处理 ToolCallFinishedEvent
+# 功能：测试 ConsoleSubscriber 处理 ToolCallFinishedEvent
 # 设计：验证 printer 能正确处理工具完成事件
-def test_event_printer_tool_call_finished(capsys):
-    printer = _EventPrinter()
+def test_console_subscriber_tool_call_finished(capsys):
+    subscriber = ConsoleSubscriber()
     event = ToolCallFinishedEvent(run_id="123", tool_name="bash", is_error=False, tool_result="output", ts="2024-01-01T00:00:00")
-    printer(event)
+    subscriber(event)
     captured = capsys.readouterr()
     assert "output" in captured.out
 
 
-# 功能：测试 _EventPrinter 处理 LlmCallStartedEvent
+# 功能：测试 ConsoleSubscriber 处理 LlmCallStartedEvent
 # 设计：验证 printer 能正确处理 LLM 调用事件
-def test_event_printer_llm_call_started(capsys):
-    printer = _EventPrinter()
+def test_console_subscriber_llm_call_started(capsys):
+    subscriber = ConsoleSubscriber()
     event = LlmCallStartedEvent(run_id="123", step=1, ts="2024-01-01T00:00:00")
-    printer(event)
+    subscriber(event)
     captured = capsys.readouterr()
     assert "LLM" in captured.out
 
@@ -170,22 +171,22 @@ def test_run_outcome_empty_result():
     assert outcome.result == ""
 
 
-# 功能：测试 _EventPrinter 处理长 tool_result
+# 功能：测试 ConsoleSubscriber 处理长 tool_result
 # 设计：验证超过 150 字符的结果会被截断
-def test_event_printer_long_tool_result(capsys):
-    printer = _EventPrinter()
+def test_console_subscriber_long_tool_result(capsys):
+    subscriber = ConsoleSubscriber()
     long_result = "x" * 200
     event = ToolCallFinishedEvent(run_id="123", tool_name="bash", is_error=False, tool_result=long_result, ts="2024-01-01T00:00:00")
-    printer(event)
+    subscriber(event)
     captured = capsys.readouterr()
     assert "..." in captured.out
 
 
-# 功能：测试 _EventPrinter 处理空 tool_result
+# 功能：测试 ConsoleSubscriber 处理空 tool_result
 # 设计：验证空结果不会打印
-def test_event_printer_empty_tool_result(capsys):
-    printer = _EventPrinter()
+def test_console_subscriber_empty_tool_result(capsys):
+    subscriber = ConsoleSubscriber()
     event = ToolCallFinishedEvent(run_id="123", tool_name="bash", is_error=False, tool_result="", ts="2024-01-01T00:00:00")
-    printer(event)
+    subscriber(event)
     captured = capsys.readouterr()
     assert "Output" not in captured.out

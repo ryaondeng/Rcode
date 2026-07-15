@@ -9,6 +9,7 @@ from pathlib import Path
 from rcode.core.config import RcodeConfig
 from rcode.core.context import ExecutionContext
 from rcode.core.events.bus import EventBus
+from rcode.core.events.registry import build_default_subscribers
 from rcode.core.events.writer import TraceEventSubscriber
 from rcode.core.llm.provider import AnthropicProvider
 from rcode.core.loop import AgentLoop
@@ -24,52 +25,6 @@ from rcode.core.session.manager import SessionManager
 from rcode.core.session.store import SessionStore
 from rcode.core.trace.provider import TracingProvider
 from rcode.core.trace.writer import TraceWriter
-
-
-class _EventPrinter:
-    """将关键事件打印到终端。"""
-
-    def __init__(self):
-        self._run_start = 0
-        self._step = 0
-
-    def __call__(self, event):
-        import time
-        from datetime import datetime
-        from rcode.core.events.types import (
-            RunStartedEvent, RunFinishedEvent,
-            StepStartedEvent,
-            ToolCallStartedEvent, ToolCallFinishedEvent,
-            LlmCallStartedEvent,
-        )
-
-        now = datetime.now().strftime("%H:%M:%S")
-
-        if isinstance(event, RunStartedEvent):
-            self._run_start = time.monotonic()
-            print(f"Task: {event.goal}\n")
-
-        elif isinstance(event, StepStartedEvent):
-            self._step = event.step
-
-        elif isinstance(event, LlmCallStartedEvent):
-            print(f"{now} | Step {event.step} | [LLM] chat | ...")
-
-        elif isinstance(event, ToolCallStartedEvent):
-            args_str = str(event.params)[:50] if event.params else ""
-            print(f"{now} | [Tool] {event.tool_name} | ... | Args: {args_str}")
-
-        elif isinstance(event, ToolCallFinishedEvent):
-            if event.tool_result:
-                # 截断显示
-                display = event.tool_result[:150]
-                if len(event.tool_result) > 150:
-                    display += "..."
-                print(f"{now} | Output: {display}")
-
-        elif isinstance(event, RunFinishedEvent):
-            elapsed = time.monotonic() - self._run_start
-            print(f"\nDone ({elapsed:.2f}s)")
 
 
 @dataclass
@@ -91,6 +46,7 @@ class AgentRunner:
         self._session_mgr = SessionManager(SessionStore(Path(".sessions")))
         self._compactor = Compactor(self._bus, Path(".sessions"))
         self._compact_threshold = 0.0  # 默认禁用自动压缩
+        self._subscriber_registry = build_default_subscribers(config)
         self._register_builtin_tools()
 
     def _register_builtin_tools(self) -> None:
@@ -149,8 +105,9 @@ class AgentRunner:
         # 用 TracingProvider 包裹真实 provider
         traced_provider = TracingProvider(self._provider, self._trace)
 
-        # 订阅事件打印
-        self._bus.subscribe(_EventPrinter())
+        # 按配置订阅事件
+        for subscriber in self._subscriber_registry.build():
+            self._bus.subscribe(subscriber)
 
         # 订阅事件写入 Trace
         self._bus.subscribe(TraceEventSubscriber(self._trace))
