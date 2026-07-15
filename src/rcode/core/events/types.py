@@ -92,6 +92,32 @@ class SessionDetachedEvent(BaseModel):
     ts: str
 
 
+# Compact 事件
+class CompactTriggeredEvent(BaseModel):
+    """压缩触发事件。"""
+    type: Literal["compact.triggered"] = "compact.triggered"
+    session_id: str
+    run_id: str
+    message_count: int
+    ts: str
+
+
+class CompactFinishedEvent(BaseModel):
+    """压缩完成事件。"""
+    type: Literal["compact.finished"] = "compact.finished"
+    before_tokens: int
+    after_tokens: int
+    ratio: float
+    ts: str
+
+
+class CompactFailedEvent(BaseModel):
+    """压缩失败事件。"""
+    type: Literal["compact.failed"] = "compact.failed"
+    error: str
+    ts: str
+
+
 # 事件联合类型
 Event = Annotated[
     RunStartedEvent
@@ -103,6 +129,9 @@ Event = Annotated[
     | LlmCallStartedEvent
     | LlmCallFinishedEvent
     | SessionAttachedEvent
-    | SessionDetachedEvent,
+    | SessionDetachedEvent
+    | CompactTriggeredEvent
+    | CompactFinishedEvent
+    | CompactFailedEvent,
     Discriminator("type"),
 ]

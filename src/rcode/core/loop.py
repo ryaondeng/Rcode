@@ -6,6 +6,9 @@ from datetime import datetime
 from rcode.core.context import ExecutionContext
 from rcode.core.events.bus import EventBus
 from rcode.core.events.types import (
+    CompactFailedEvent,
+    CompactFinishedEvent,
+    CompactTriggeredEvent,
     LlmCallFinishedEvent,
     LlmCallStartedEvent,
     RunFinishedEvent,
@@ -34,10 +37,19 @@ class AgentLoop:
         provider: LLMProvider,
         registry: ToolRegistry,
         bus: EventBus,
+        compactor=None,
+        compact_threshold: float = 0.0,
     ) -> None:
         self._provider = provider
         self._registry = registry
         self._bus = bus
+        self._compactor = compactor
+        self._compact_threshold = compact_threshold
+        if compact_threshold > 0:
+            from rcode.core.compact.budget import TokenBudget
+            self._budget = TokenBudget(compact_threshold)
+        else:
+            self._budget = None
 
     async def run(self, context: ExecutionContext) -> None:
         """执行 Agent 循环。"""
@@ -51,6 +63,11 @@ class AgentLoop:
             if context.step >= context.max_steps:
                 context.mark_failed("exceeded_max_steps")
                 break
+
+            # 水位检查
+            if self._compactor and self._budget:
+                if await self._budget.check(context.messages):
+                    await self._do_compact(context)
 
             context.step += 1
             await self._bus.publish(StepStartedEvent(
@@ -131,3 +148,31 @@ class AgentLoop:
             status=context.status,
             ts=_now(),
         ))
+
+    async def _do_compact(self, context: ExecutionContext) -> None:
+        """执行上下文压缩。"""
+        await self._bus.publish(CompactTriggeredEvent(
+            session_id="",
+            run_id=context.run_id,
+            message_count=len(context.messages),
+            ts=_now(),
+        ))
+
+        try:
+            result = await self._compactor.compact_messages(
+                messages=context.messages,
+                provider=self._provider,
+            )
+            if result:
+                context.replace_history(result.summary_text)
+                await self._bus.publish(CompactFinishedEvent(
+                    before_tokens=result.original_token_estimate,
+                    after_tokens=result.summary_tokens,
+                    ratio=result.summary_tokens / max(result.original_token_estimate, 1),
+                    ts=_now(),
+                ))
+        except Exception as e:
+            await self._bus.publish(CompactFailedEvent(
+                error=str(e),
+                ts=_now(),
+            ))

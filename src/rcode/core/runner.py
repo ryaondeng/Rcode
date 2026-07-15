@@ -19,6 +19,7 @@ from rcode.core.tools.builtin.edit_file import EditFileTool
 from rcode.core.tools.builtin.list_dir import ListDirTool
 from rcode.core.tools.builtin.glob import GlobTool
 from rcode.core.tools.registry import ToolRegistry
+from rcode.core.compact.compactor import Compactor
 from rcode.core.session.manager import SessionManager
 from rcode.core.session.store import SessionStore
 from rcode.core.trace.provider import TracingProvider
@@ -88,6 +89,8 @@ class AgentRunner:
         self._bus = EventBus()
         self._trace: TraceWriter | None = None
         self._session_mgr = SessionManager(SessionStore(Path(".sessions")))
+        self._compactor = Compactor(self._bus, Path(".sessions"))
+        self._compact_threshold = 0.0  # 默认禁用自动压缩
         self._register_builtin_tools()
 
     def _register_builtin_tools(self) -> None:
@@ -152,7 +155,13 @@ class AgentRunner:
         # 订阅事件写入 Trace
         self._bus.subscribe(TraceEventSubscriber(self._trace))
 
-        loop = AgentLoop(traced_provider, self._registry, self._bus)
+        loop = AgentLoop(
+            traced_provider,
+            self._registry,
+            self._bus,
+            compactor=self._compactor,
+            compact_threshold=self._compact_threshold,
+        )
 
         try:
             await loop.run(context)

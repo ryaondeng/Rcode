@@ -11,6 +11,9 @@ from rcode.core.events.types import (
     LlmCallFinishedEvent,
     SessionAttachedEvent,
     SessionDetachedEvent,
+    CompactTriggeredEvent,
+    CompactFinishedEvent,
+    CompactFailedEvent,
     Event,
 )
 
@@ -27,5 +30,8 @@ __all__ = [
     "LlmCallFinishedEvent",
     "SessionAttachedEvent",
     "SessionDetachedEvent",
+    "CompactTriggeredEvent",
+    "CompactFinishedEvent",
+    "CompactFailedEvent",
     "Event",
 ]

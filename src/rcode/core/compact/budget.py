@@ -11,6 +11,33 @@ class CompactionConfig:
     tool_result_keep: int = 4000   # 截断后保留的前缀字符数
 
 
+class TokenBudget:
+    """Token 预算检查器。"""
+
+    def __init__(self, threshold: float = 0.7) -> None:
+        self._threshold = threshold
+
+    async def check(
+        self,
+        messages: list[dict],
+        max_tokens: int = 100000,
+    ) -> bool:
+        """检查是否需要压缩。
+
+        Args:
+            messages: 消息列表
+            max_tokens: 最大 token 数
+
+        Returns:
+            是否需要压缩
+        """
+        estimated = sum(
+            len(str(m.get("content", ""))) // 4
+            for m in messages
+        )
+        return estimated > max_tokens * self._threshold
+
+
 def truncate_tool_results(
     messages: list[dict],
     limit: int = 8000,

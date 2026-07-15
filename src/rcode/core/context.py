@@ -79,3 +79,12 @@ class ExecutionContext:
         self._is_done = True
         self.status = "failed"
         self.result = reason
+
+    def replace_history(self, summary: str) -> None:
+        """用摘要替换 runtime 中的旧 messages。
+
+        原始 messages 仍完整保留在 Session store。
+        """
+        self.messages = [
+            {"role": "user", "content": summary},
+        ]
